@@ -15,6 +15,6 @@
     "php": ">=5.4"
   },
   "autoload": {
-    "psr-4": { "Minimalcode\\Search\\": "../php-enum/src/Minimalcode/Enumeration"}
+    "psr-4": { "Minimalcode\\Enumeration\\": "../php-enum/src/Minimalcode/Enumeration"}
   }
 }
