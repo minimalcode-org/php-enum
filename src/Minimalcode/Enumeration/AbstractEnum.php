@@ -237,14 +237,6 @@ abstract class AbstractEnum
 	/**
 	 * @throws LogicException Enums are not serializable because instances are implemented as singletons
 	 */
-	final public function __sleep()
-	{
-		throw new LogicException('Enums are not serializable');
-	}
-
-	/**
-	 * @throws LogicException Enums are not serializable because instances are implemented as singletons
-	 */
 	final public function __wakeup()
 	{
 		throw new LogicException('Enums are not serializable');
