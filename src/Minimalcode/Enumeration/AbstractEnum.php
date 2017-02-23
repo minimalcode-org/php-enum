@@ -135,7 +135,7 @@ abstract class AbstractEnum
 	}
 
 	/**
-	 * @return array
+	 * @return static[]
 	 * @throws \LogicException On ambiguous constant values
 	 */
 	final public static function all()
