@@ -64,7 +64,8 @@ abstract class AbstractEnum
      * @param string $method The name of the enumeraotr (called as method)
      * @param array $args There should be no arguments
      * @return static
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      * @throws InvalidArgumentException On an invalid or unknown name
      */
     final public static function __callStatic($method, array $args)
@@ -77,7 +78,8 @@ abstract class AbstractEnum
      *
      * @param string $name The name of the enumerator
      * @return static
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      * @throws InvalidArgumentException On an invalid or unknown name
      */
     final public static function forName($name)
@@ -85,9 +87,8 @@ abstract class AbstractEnum
         $instances = static::getEnumerators();
 
         if (!static::hasName($name)) {
-            throw new InvalidArgumentException(
-                get_called_class() . ' has not an enum defined with name \'' . $name . '\''
-            );
+            $message = \get_called_class() . ' has not an enum defined with name \'' . $name . '\'.';
+            throw new InvalidArgumentException($message . ' Found: ' . \implode(', ', static::getNames()));
         }
 
         return $instances[$name];
@@ -98,7 +99,8 @@ abstract class AbstractEnum
      *
      * @param null|bool|int|float|string $value
      * @return static
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      * @throws \InvalidArgumentException On an invalid or unknown value
      */
     final public static function forValue($value)
@@ -109,9 +111,8 @@ abstract class AbstractEnum
             }
         }
 
-        throw new InvalidArgumentException(
-            get_called_class() . ' has not an enum defined with value \'' . $value . '\''
-        );
+        $message = \get_called_class() . ' has not an enum defined with value \'' . $value . '\'.';
+        throw new InvalidArgumentException($message . ' Found: ' . implode(', ', static::getValues()));
     }
 
     /**
@@ -119,7 +120,8 @@ abstract class AbstractEnum
      *
      * @param int $ordinal
      * @return static
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      * @throws \InvalidArgumentException On an invalid or unknown value
      */
     final public static function forOrdinal($ordinal)
@@ -130,14 +132,14 @@ abstract class AbstractEnum
             }
         }
 
-        throw new InvalidArgumentException(
-            get_called_class() . ' has not an enum defined with ordinal \'' . $ordinal . '\''
-        );
+        $message = \get_called_class() . ' has not an enum defined with ordinal \'' . $ordinal . '\'.';
+        throw new InvalidArgumentException($message . ' Found:' . implode(', ', static::getOrdinals()));
     }
 
     /**
      * @return static[]
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      * @deprecated will be removed, use getEnumerators()
      */
     final public static function all()
@@ -149,29 +151,32 @@ abstract class AbstractEnum
      * Get a list of enumerator instances
      *
      * @return static[]
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      */
     final public static function getEnumerators()
     {
-        return static::enumeratorsOf(get_called_class());
+        return static::enumeratorsOf(\get_called_class());
     }
 
     /**
      * Get a list of enumerator names
      *
      * @return string[]
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      */
     final public static function getNames()
     {
-        return array_keys(self::getEnumerators());
+        return \array_keys(self::getEnumerators());
     }
 
     /**
      * Get a list of enumerator values
      *
      * @return mixed[]
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      */
     final public static function getValues()
     {
@@ -187,12 +192,13 @@ abstract class AbstractEnum
      * Get a list of enumerator ordinal numbers
      *
      * @return int[]
-     * @throws \LogicException On ambiguous constant values
+     * @throws \ReflectionException
+     * @throws LogicException On ambiguous constant values
      */
     final public static function getOrdinals()
     {
         $count = \count(self::getEnumerators());
-        return $count === 0 ? [] : range(0, $count - 1);
+        return $count === 0 ? [] : \range(0, $count - 1);
     }
 
     /**
@@ -200,7 +206,8 @@ abstract class AbstractEnum
      *
      * @param string $name
      * @return bool
-     * @throws \LogicException
+     * @throws \ReflectionException
+     * @throws LogicException
      */
     final public static function hasName($name)
     {
@@ -212,7 +219,8 @@ abstract class AbstractEnum
      *
      * @param  null|bool|int|float|string $value
      * @return bool
-     * @throws \LogicException
+     * @throws \ReflectionException
+     * @throws LogicException
      */
     final public static function hasValue($value)
     {
@@ -230,7 +238,8 @@ abstract class AbstractEnum
      *
      * @param int $ordinal
      * @return bool
-     * @throws \LogicException
+     * @throws \ReflectionException
+     * @throws LogicException
      */
     final public static function hasOrdinal($ordinal)
     {
@@ -242,29 +251,30 @@ abstract class AbstractEnum
      *
      * @param string $class
      * @return static[]
+     * @throws \ReflectionException
      * @throws LogicException On ambiguous constant values
      */
     final private static function enumeratorsOf($class)
     {
-        if (!array_key_exists($class, self::$enumerators)) {
+        if (!\array_key_exists($class, self::$enumerators)) {
             $reflection = new ReflectionClass($class);
             $constants = $reflection->getConstants();
 
             // values needs to be unique
             $ambiguous = [];
             foreach ($constants as $value) {
-                $names = array_keys($constants, $value, true);
-                if (count($names) > 1) {
-                    $ambiguous[var_export($value, true)] = $names;
+                $names = \array_keys($constants, $value, true);
+                if (\count($names) > 1) {
+                    $ambiguous[\var_export($value, true)] = $names;
                 }
             }
 
             // ambiguous values are not permitted
-            if (count($ambiguous) > 0) {
+            if (\count($ambiguous) > 0) {
                 throw new LogicException(
                     'All possible values needs to be unique. The following are ambiguous: '
-                    . implode(', ', array_map(function ($names) use ($constants) {
-                        return implode('/', $names) . '=' . var_export($constants[$names[0]], true);
+                    . \implode(', ', \array_map(function ($names) use ($constants) {
+                        return \implode('/', $names) . '=' . var_export($constants[$names[0]], true);
                     }, $ambiguous))
                 );
             }
