@@ -137,17 +137,6 @@ abstract class AbstractEnum
     }
 
     /**
-     * @return static[]
-     * @throws \ReflectionException
-     * @throws LogicException On ambiguous constant values
-     * @deprecated will be removed, use getEnumerators()
-     */
-    final public static function all()
-    {
-        return static::getEnumerators();
-    }
-
-    /**
      * Get a list of enumerator instances
      *
      * @return static[]
@@ -323,11 +312,11 @@ abstract class AbstractEnum
      * Get the name of the enumerator
      *
      * @return string
-     * @see getName()
+     * @see getValue()
      */
     public function __toString()
     {
-        return $this->name;
+        return \is_scalar($this->value) ? (string) $this->value : $this->name;
     }
 
     /**
